@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f8f8f8;
+    background-color: #fff6fb;
     text-align: center;
 }
 
@@ -89,6 +89,9 @@ select {
     align-items: center;
     gap: 10px;
     padding: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: hidden;
 }
 
 .seat-row {
@@ -183,7 +186,7 @@ select {
     position: relative;
     text-align: center;
     bottom: -10px;
-    background: #ff758c;
+    background: #db8996;
 }
 
 #hall-select:hover {
@@ -203,7 +206,7 @@ select {
 }
 
 
-@media (max-width: 600px) {
+@media (max-width: 786px) {
     header {
         flex-direction: column;
         text-align: center;
@@ -215,5 +218,14 @@ select {
     }
     .socials {
         margin-top: 10px;
+    }
+    .seat {
+        font-size: 12px; /* Уменьшаем шрифт */
+        width: 20px;
+        height: 20px;
+    }
+    #seats-container {
+        gap: 1px;
+        padding: 20px;
     }
 }
