@@ -206,7 +206,7 @@ select {
 }
 
 
-@media (max-width: 786px) {
+@media (max-width: 600px) {
     header {
         flex-direction: column;
         text-align: center;
@@ -220,7 +220,7 @@ select {
         margin-top: 10px;
     }
     .seat {
-        font-size: 12px; /* Уменьшаем шрифт */
+        font-size: 12px;
         width: 20px;
         height: 20px;
     }
