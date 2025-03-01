@@ -118,7 +118,7 @@ header {
 .seat.booked {
     background-color: red;
     color: white;
-    pointer-events: none; /* Нельзя кликать */
+    pointer-events: none;
 }
 
 .book-button {

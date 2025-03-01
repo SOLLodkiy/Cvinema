@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const seatsContainer = document.getElementById('seats-container');
-    const totalSeats = 32;
-    const seatsPerRow = 12;
+    const totalSeats = 52;
+    const seatsPerRow = 14;
     
     seatsContainer.innerHTML = ''; // Очищаем контейнер
     let fullRows = Math.floor(totalSeats / seatsPerRow);
