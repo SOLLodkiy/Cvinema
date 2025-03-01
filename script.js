@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
         seatsContainer.innerHTML = "";
         let fullRows = Math.floor(totalSeats / seatsPerRow);
         let remainingSeats = totalSeats % seatsPerRow;
-        selectedSeats = new Set(hallsData[currentHall]); // Загружаем данные текущего зала
+        selectedSeats = new Set(hallsData[currentHall]);
 
         for (let i = 0; i < fullRows; i++) {
             let row = document.createElement('div');

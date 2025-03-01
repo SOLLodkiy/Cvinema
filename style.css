@@ -197,7 +197,7 @@ select {
 
 #hall-select option {
     background: white;
-    color: black;
+    color: rgb(6, 6, 6);
     font-weight: bold;
     padding: 10px;
 }
