@@ -66,6 +66,12 @@ header {
     opacity: 0.8;
 }
 
+select {
+    font-size: 18px;
+    padding: 5px;
+    margin-bottom: 15px;
+}
+
 .screen {
     width: 50%;
     margin: 2px auto;
@@ -162,6 +168,40 @@ header {
     text-align: center;
     margin-top: 10px;
 }
+
+#hall-select {
+    appearance: none;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border: 2px solid #ff4d6d;
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    position: relative;
+    text-align: center;
+    bottom: -10px;
+    background: #ff758c;
+}
+
+#hall-select:hover {
+    background: linear-gradient(135deg, #ff5f7b, #ff6b99);
+}
+
+#hall-select:focus {
+    border-color: #ff2f58;
+    background: linear-gradient(135deg, #ff4a6d, #ff5b89);
+}
+
+#hall-select option {
+    background: white;
+    color: black;
+    font-weight: bold;
+    padding: 10px;
+}
+
 
 @media (max-width: 600px) {
     header {
