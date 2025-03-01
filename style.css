@@ -157,6 +157,12 @@ header {
     z-index: 1000;
 }
 
+.total-price {
+    font-size: 18px;
+    text-align: center;
+    margin-top: 10px;
+}
+
 @media (max-width: 600px) {
     header {
         flex-direction: column;

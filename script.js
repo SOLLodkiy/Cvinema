@@ -2,17 +2,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const seatsContainer = document.getElementById('seats-container');
     const totalSeats = 52;
     const seatsPerRow = 14;
-    
+    const seatPrice = 1200;
+
     seatsContainer.innerHTML = ''; // Очищаем контейнер
     let fullRows = Math.floor(totalSeats / seatsPerRow);
     let remainingSeats = totalSeats % seatsPerRow;
-    
-    // Создаём кнопку "Забронировать"
+
+    // Кнопка "Забронировать"
     const bookButton = document.createElement("button");
     bookButton.textContent = "Забронировать";
     bookButton.classList.add("book-button");
-    bookButton.style.display = "none"; // Скрываем кнопку изначально
+    bookButton.style.display = "none"; // Скрыта изначально
     document.body.appendChild(bookButton);
+
+    // Блок для отображения суммы
+    const totalPrice = document.createElement("p");
+    totalPrice.classList.add("total-price");
+    totalPrice.textContent = "Общая сумма: 0 тг";
+    totalPrice.style.display = "none"; // Изначально скрыт
+    document.body.appendChild(totalPrice);
 
     // Всплывающая цена
     const priceTooltip = document.createElement("div");
@@ -20,24 +28,24 @@ document.addEventListener("DOMContentLoaded", function () {
     priceTooltip.textContent = "1200 тг";
     document.body.appendChild(priceTooltip);
 
-    let selectedSeats = new Set(); // Храним выбранные места
+    let selectedSeats = new Set(); // Храним номера выбранных мест
 
-    // Обновление кнопки "Забронировать"
-    function updateBookButton() {
+    function updateUI() {
         if (selectedSeats.size > 0) {
             bookButton.style.display = "block";
+            totalPrice.style.display = "block";
+            totalPrice.textContent = `Общая сумма: ${selectedSeats.size * seatPrice} тг`;
         } else {
             bookButton.style.display = "none";
+            totalPrice.style.display = "none";
         }
     }
 
-    // Функция обновления позиции ценника
     function updateTooltipPosition(event) {
         priceTooltip.style.left = event.pageX + 10 + "px";
         priceTooltip.style.top = event.pageY + 10 + "px";
     }
 
-    // Генерируем полные ряды
     for (let i = 0; i < fullRows; i++) {
         let row = document.createElement('div');
         row.classList.add('seat-row');
@@ -50,7 +58,6 @@ document.addEventListener("DOMContentLoaded", function () {
         seatsContainer.appendChild(row);
     }
 
-    // Генерируем оставшиеся места
     if (remainingSeats > 0) {
         let lastRow = document.createElement('div');
         lastRow.classList.add('seat-row');
@@ -64,13 +71,11 @@ document.addEventListener("DOMContentLoaded", function () {
         seatsContainer.appendChild(lastRow);
     }
 
-    // Функция создания места
     function createSeat(number) {
         let seat = document.createElement('div');
         seat.classList.add('seat');
         seat.textContent = number;
 
-        // Наведение (показываем цену)
         seat.addEventListener("mouseenter", function () {
             if (!seat.classList.contains("booked")) {
                 priceTooltip.style.display = "block";
@@ -83,35 +88,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
         seat.addEventListener("mousemove", updateTooltipPosition);
 
-        // Клик по месту (выбор)
         seat.addEventListener("click", function () {
-            if (seat.classList.contains("booked")) return; // Заблокированные места нельзя нажимать
+            if (seat.classList.contains("booked")) return;
 
             if (seat.classList.contains("selected")) {
-                seat.classList.remove("selected"); // Убираем выбор (зеленый)
+                seat.classList.remove("selected");
                 selectedSeats.delete(number);
             } else {
-                seat.classList.add("selected"); // Выбираем (желтый)
+                seat.classList.add("selected");
                 selectedSeats.add(number);
             }
 
-            updateBookButton();
+            updateUI();
         });
 
         return seat;
     }
 
-    // Нажатие на кнопку "Забронировать"
     bookButton.addEventListener("click", function () {
         selectedSeats.forEach((seatNumber) => {
             let seat = [...document.querySelectorAll('.seat')].find(s => s.textContent == seatNumber);
             if (seat) {
-                seat.classList.add("booked"); // Делаем место красным
+                seat.classList.add("booked");
                 seat.classList.remove("selected");
             }
         });
 
         selectedSeats.clear();
-        updateBookButton();
+        updateUI();
     });
 });
