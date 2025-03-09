@@ -3,7 +3,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Получаем название фильма из URL (query-параметры)
     const urlParams = new URLSearchParams(window.location.search);
-    const movieName = decodeURIComponent(urlParams.get("name"));
+    const movieName = decodeURIComponent(urlParams.get("name"))
+        .toLowerCase()
+        .replace(/\s/g, "-"); // Убираем пробелы и приводим к нижнему регистру
+
+    console.log("Название фильма из URL:", movieName);
 
     // Данные о фильмах
     const moviesData = {
@@ -31,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
             description: "Продолжение истории на Пандоре.",
             rating: 8.2
         },
-        "человекпаук-через-вселенные": {
+        "человек-паук-через-вселенные": {
             title: "Человек-паук: Через вселенные",
             poster: "https://ru-images.kinorium.com/movie/300/1446885.jpg?1654075889",
             description: "Майлз Моралес отправляется в мультивселенную.",
@@ -45,7 +49,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    // Функция для случайного выбора зала (1-6)
     function getRandomHall() {
         return Math.floor(Math.random() * 6) + 1;
     }
@@ -53,14 +56,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (movieName && moviesData[movieName]) {
         const movie = moviesData[movieName];
 
-        // Проверяем, был ли уже назначен зал
         let savedHall = localStorage.getItem(`hall_${movieName}`);
         if (!savedHall) {
             savedHall = getRandomHall();
             localStorage.setItem(`hall_${movieName}`, savedHall);
         }
 
-        // Генерируем HTML-код для отображения фильма
         movieInfoContainer.innerHTML = `
             <h1>${movie.title}</h1>
             <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
@@ -69,7 +70,6 @@ document.addEventListener("DOMContentLoaded", function () {
             <p><strong>Зал:</strong> ${savedHall}</p>
         `;
 
-        // Сохраняем текущий зал для бронирования мест
         localStorage.setItem("currentMovieHall", savedHall);
     } else {
         movieInfoContainer.innerHTML = `<h1>Фильм не найден</h1>`;
