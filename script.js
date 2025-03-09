@@ -1,31 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
     const seatsContainer = document.getElementById('seats-container');
-    const hallSelect = document.getElementById("hall-select");
     const totalSeats = 52;
     const seatsPerRow = 14;
     const seatPrice = 1200;
 
-    // Объект для хранения информации о каждом зале (забронированные места)
-    const hallsData = {
-        1: new Set(),
-        2: new Set(),
-        3: new Set(),
-        4: new Set(),
-        5: new Set(),
-        6: new Set()
-    };
+    // Получаем зал из localStorage (он был задан в movie.js)
+    const currentHall = localStorage.getItem("currentMovieHall") || "1";
+    const currentMovie = new URLSearchParams(window.location.search).get("movie") || "unknown";
 
-    // Объект для хранения выбранных мест в каждом зале
-    const selectedSeatsData = {
-        1: new Set(),
-        2: new Set(),
-        3: new Set(),
-        4: new Set(),
-        5: new Set(),
-        6: new Set()
-    };
+    // Уникальный ключ для сохранения мест каждого фильма
+    const storageKey = `seats_${currentMovie}_hall${currentHall}`;
 
-    let currentHall = hallSelect.value;
+    // Загружаем данные о забронированных местах из localStorage
+    let bookedSeats = new Set(JSON.parse(localStorage.getItem(storageKey)) || []);
+    let selectedSeats = new Set();
 
     // Кнопка "Забронировать"
     const bookButton = document.createElement("button");
@@ -41,25 +29,14 @@ document.addEventListener("DOMContentLoaded", function () {
     totalPrice.style.display = "none";
     document.body.appendChild(totalPrice);
 
-    // Всплывающая цена
-    const priceTooltip = document.createElement("div");
-    priceTooltip.classList.add("price-tooltip");
-    priceTooltip.textContent = "1200 тг";
-    document.body.appendChild(priceTooltip);
-
     function updateUI() {
-        const hasSelectedSeats = selectedSeatsData[currentHall].size > 0;
+        const hasSelectedSeats = selectedSeats.size > 0;
         bookButton.style.display = hasSelectedSeats ? "block" : "none";
         totalPrice.style.display = hasSelectedSeats ? "block" : "none";
 
         if (hasSelectedSeats) {
-            totalPrice.textContent = `Общая сумма: ${selectedSeatsData[currentHall].size * seatPrice} тг`;
+            totalPrice.textContent = `Общая сумма: ${selectedSeats.size * seatPrice} тг`;
         }
-    }
-
-    function updateTooltipPosition(event) {
-        priceTooltip.style.left = event.pageX + 10 + "px";
-        priceTooltip.style.top = event.pageY + 10 + "px";
     }
 
     function renderSeats() {
@@ -92,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
             seatsContainer.appendChild(lastRow);
         }
 
-        updateUI(); // Обновляем UI после рендера
+        updateUI();
     }
 
     function createSeat(number) {
@@ -100,33 +77,21 @@ document.addEventListener("DOMContentLoaded", function () {
         seat.classList.add('seat');
         seat.textContent = number;
 
-        if (hallsData[currentHall].has(number)) {
+        if (bookedSeats.has(number)) {
             seat.classList.add("booked"); // Красный цвет (забронировано)
-        } else if (selectedSeatsData[currentHall].has(number)) {
+        } else if (selectedSeats.has(number)) {
             seat.classList.add("selected"); // Жёлтый цвет (выбрано)
         }
-
-        seat.addEventListener("mouseenter", function () {
-            if (!seat.classList.contains("booked")) {
-                priceTooltip.style.display = "block";
-            }
-        });
-
-        seat.addEventListener("mouseleave", function () {
-            priceTooltip.style.display = "none";
-        });
-
-        seat.addEventListener("mousemove", updateTooltipPosition);
 
         seat.addEventListener("click", function () {
             if (seat.classList.contains("booked")) return;
 
             if (seat.classList.contains("selected")) {
                 seat.classList.remove("selected");
-                selectedSeatsData[currentHall].delete(number);
+                selectedSeats.delete(number);
             } else {
                 seat.classList.add("selected");
-                selectedSeatsData[currentHall].add(number);
+                selectedSeats.add(number);
             }
 
             updateUI();
@@ -136,23 +101,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     bookButton.addEventListener("click", function () {
-        selectedSeatsData[currentHall].forEach((seatNumber) => {
+        selectedSeats.forEach((seatNumber) => {
             let seat = [...document.querySelectorAll('.seat')].find(s => s.textContent == seatNumber);
             if (seat) {
                 seat.classList.add("booked");
                 seat.classList.remove("selected");
-                hallsData[currentHall].add(seatNumber); // Сохраняем данные о бронировании
+                bookedSeats.add(seatNumber); // Сохраняем бронирование
             }
         });
 
-        selectedSeatsData[currentHall].clear(); // Очищаем выбранные места после бронирования
+        selectedSeats.clear(); // Очищаем выбранные места после бронирования
+        localStorage.setItem(storageKey, JSON.stringify([...bookedSeats])); // Сохраняем забронированные места
         updateUI();
     });
 
-    hallSelect.addEventListener("change", function () {
-        currentHall = hallSelect.value;
-        renderSeats(); // Перерисовываем места для нового зала
-    });
-
-    renderSeats(); // Начальный рендеринг
+    renderSeats();
 });
