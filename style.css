@@ -113,6 +113,7 @@ select {
     padding: 20px;
     background-color: #ffacd1;
     border-radius: 10px;
+    opacity: 0.1;
 }
 
 #movie-info img {
