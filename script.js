@@ -1,81 +1,107 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const moviesContainer = document.getElementById("movies-container");
-    const movieDetails = document.getElementById("movie-details");
 
     // Загружаем список фильмов из JSON
     const response = await fetch("movies.json");
     const movies = await response.json();
 
-    // Определяем, какая страница загружена
-    const pathParts = window.location.pathname.split("/");
-    const isMoviePage = pathParts.length > 2 && pathParts[2]; // Если есть название фильма в URL
+    // Определяем, на какой странице мы находимся
+    const currentHash = window.location.hash.replace("#", "");
 
-    if (!isMoviePage && moviesContainer) {
-        // 🏠 Главная страница — показываем афишу фильмов
+    if (currentHash === "home" || !currentHash) {
+        // Главная страница — отображаем афишу
+        moviesContainer.innerHTML = ""; // Очищаем контейнер
+
         movies.forEach(movie => {
-            const movieCard = document.createElement("div");
-            movieCard.classList.add("movie-card");
-            movieCard.innerHTML = `
+            const movieElement = document.createElement("div");
+            movieElement.classList.add("movie-card");
+            movieElement.innerHTML = `
                 <img src="${movie.poster}" alt="${movie.title}">
                 <h2>${movie.title}</h2>
                 <p>Рейтинг: ${movie.rating}</p>
             `;
-
-            // Переход на страницу фильма
-            movieCard.addEventListener("click", () => {
-                window.location.href = `/Cvinema/${encodeURIComponent(movie.title)}`;
+            movieElement.addEventListener("click", () => {
+                window.location.hash = encodeURIComponent(movie.title);
             });
-
-            moviesContainer.appendChild(movieCard);
+            moviesContainer.appendChild(movieElement);
         });
-    } else if (isMoviePage && movieDetails) {
-        // 🎬 Страница фильма — загружаем информацию о фильме
-        const movieName = decodeURIComponent(pathParts[2]);
-        const movie = movies.find(m => m.title === movieName);
-
-        if (movie) {
-            document.title = movie.title;
-            document.getElementById("movie-title").textContent = movie.title;
-
-            // Генерация зала (используем старый код генерации мест!)
-            let seatsHTML = "<div class='seats'>";
-            for (let row = 0; row < 5; row++) {
-                seatsHTML += "<div class='seat-row'>";
-                for (let col = 0; col < 10; col++) {
-                    seatsHTML += `<div class="seat" data-seat="${row}-${col}"></div>`;
-                }
-                seatsHTML += "</div>";
-            }
-            seatsHTML += "</div>";
-
-            movieDetails.innerHTML = `
-                <img src="${movie.poster}" alt="${movie.title}" style="width: 300px; border-radius: 10px;">
-                <p>${movie.description}</p>
-                <p><strong>Рейтинг:</strong> ${movie.rating}</p>
-                <h3>Выберите место:</h3>
-                ${seatsHTML}
-                <button onclick="confirmBooking()">Забронировать</button>
-            `;
-
-            loadSeats(movieName); // Загружаем сохранённые места
-            document.querySelectorAll(".seat").forEach(seat => {
-                seat.addEventListener("click", () => toggleSeat(seat, movieName));
-            });
-        } else {
-            movieDetails.innerHTML = "<p>Фильм не найден.</p>";
-        }
+    } else {
+        // Если выбран фильм — загружаем его данные
+        loadMoviePage(currentHash, movies);
     }
 });
 
-// Функция возврата на главную
-function goBack() {
-    window.location.href = "/Cvinema";
+// Функция загрузки страницы фильма
+function loadMoviePage(movieTitle, movies) {
+    const movie = movies.find(m => encodeURIComponent(movie.title) === movieTitle);
+    if (!movie) {
+        document.body.innerHTML = "<h1>Фильм не найден</h1>";
+        return;
+    }
+
+    // Случайное назначение зала (если ещё не назначен)
+    if (!localStorage.getItem(`hall_${movie.title}`)) {
+        const randomHall = Math.floor(Math.random() * 6) + 1;
+        localStorage.setItem(`hall_${movie.title}`, randomHall);
+    }
+
+    const hallNumber = localStorage.getItem(`hall_${movie.title}`);
+
+    document.body.innerHTML = `
+        <header>
+            <div class="logo">
+                <a href="#home"><img src="images/logo_cvinema.png" alt="Cvinema" width="350"></a>
+            </div>
+        </header>
+        <button class="back-button" onclick="window.location.hash='home'">← Назад</button>
+        <main>
+            <h1>${movie.title}</h1>
+            <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
+            <p>${movie.description}</p>
+            <p><strong>Рейтинг:</strong> ${movie.rating}</p>
+            <p><strong>Зал:</strong> ${hallNumber}</p>
+            <h2>Выберите место</h2>
+            <div id="seats-container"></div>
+            <button class="book-button" onclick="confirmBooking('${movie.title}')">Забронировать</button>
+        </main>
+    `;
+
+    generateSeats(movie.title);
 }
 
-// Функция для выбора места
-function toggleSeat(seat, movieName) {
+// Функция генерации мест
+function generateSeats(movieTitle) {
+    const seatsContainer = document.getElementById("seats-container");
+    seatsContainer.innerHTML = ""; // Очищаем контейнер
+
+    for (let row = 0; row < 5; row++) {
+        const rowDiv = document.createElement("div");
+        rowDiv.classList.add("seat-row");
+
+        for (let seat = 0; seat < 10; seat++) {
+            const seatId = `${row}-${seat}`;
+            const seatDiv = document.createElement("div");
+            seatDiv.classList.add("seat");
+            seatDiv.dataset.seat = seatId;
+
+            // Проверяем, забронировано ли место
+            let bookedSeats = JSON.parse(localStorage.getItem(`booked_${movieTitle}`) || "[]");
+            if (bookedSeats.includes(seatId)) {
+                seatDiv.classList.add("booked");
+            }
+
+            seatDiv.addEventListener("click", () => toggleSeat(seatDiv, movieTitle));
+            rowDiv.appendChild(seatDiv);
+        }
+
+        seatsContainer.appendChild(rowDiv);
+    }
+}
+
+// Функция выбора места
+function toggleSeat(seat, movieTitle) {
     const seatId = seat.dataset.seat;
-    let bookedSeats = JSON.parse(localStorage.getItem(movieName) || "[]");
+    let bookedSeats = JSON.parse(localStorage.getItem(`booked_${movieTitle}`) || "[]");
 
     if (bookedSeats.includes(seatId)) {
         bookedSeats = bookedSeats.filter(s => s !== seatId);
@@ -85,20 +111,10 @@ function toggleSeat(seat, movieName) {
         seat.classList.add("booked");
     }
 
-    localStorage.setItem(movieName, JSON.stringify(bookedSeats));
-}
-
-// Загружаем сохранённые места
-function loadSeats(movieName) {
-    const bookedSeats = JSON.parse(localStorage.getItem(movieName) || "[]");
-    document.querySelectorAll(".seat").forEach(seat => {
-        if (bookedSeats.includes(seat.dataset.seat)) {
-            seat.classList.add("booked");
-        }
-    });
+    localStorage.setItem(`booked_${movieTitle}`, JSON.stringify(bookedSeats));
 }
 
 // Подтверждение бронирования
-function confirmBooking() {
+function confirmBooking(movieTitle) {
     alert("Места забронированы!");
 }
