@@ -3,17 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Фильм</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Cvinema - Фильм</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1 id="movie-title">Название фильма</h1>
-        <button onclick="goBack()">← Назад</button>
+        <span class="back-arrow" onclick="goToMain()">←</span>
+        <h1 onclick="goToMain()">Cvinema</h1>
     </header>
-
-    <main id="movie-details">
-        <!-- Данные фильма будут загружаться динамически -->
+    
+    <main>
+        <div id="movie-info">
+            <h2 id="movie-title"></h2>
+            <p id="movie-description"></p>
+            <img id="movie-image" src="" alt="Постер фильма">
+            <p>Оценка: <span id="movie-rating"></span></p>
+        </div>
+        
+        <div id="booking">
+            <h3>Бронирование мест</h3>
+            <p>Зал: <span id="movie-hall"></span></p>
+            <div id="seats-container"></div>
+            <button onclick="confirmBooking()">Забронировать</button>
+        </div>
     </main>
 
     <script src="script.js"></script>

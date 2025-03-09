@@ -108,9 +108,10 @@ select {
     opacity: 0.8;
 }
 
-.back-button {
+.back-arrow {
     cursor: pointer;
-    font-size: 18px;
+    font-size: 20px;
+    margin-right: 10px;
 }
 
 .screen {
