@@ -113,7 +113,6 @@ select {
     padding: 20px;
     background-color: #fff2f9;
     border-radius: 10px;
-    opacity: 0.1;
 }
 
 #movie-info img {
@@ -146,7 +145,7 @@ select {
 }
 
 .movie-meta span {
-    background: #fff3f9;
+    background: #fe7ebe;
     padding: 5px 10px;
     border-radius: 5px;
 }
