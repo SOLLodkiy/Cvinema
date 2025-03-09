@@ -72,26 +72,36 @@ select {
     margin-bottom: 15px;
 }
 
-.poster-grid {
+.movies-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     padding: 20px;
-    justify-content: center;
+    justify-items: center;
 }
 
-.poster-grid img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    transition: 0.3s;
+.movie-card {
+    width: 200px;
     cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
-.poster-grid img:hover {
-    transform: scale(1.05);
+.movie-card:hover {
+    transform: scale(1.1);
 }
 
+.movie-card img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+}
+
+.movie-title {
+    margin-top: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+}
 
 .screen {
     width: 750px;
