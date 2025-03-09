@@ -4,25 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const seatsPerRow = 14;
     const seatPrice = 1200;
 
-    const currentMovie = new URLSearchParams(window.location.search).get("movie") || "unknown";
-    const currentHall = localStorage.getItem("currentMovieHall") || "1";
-
-    // Ключ для хранения данных о всех бронированиях
-    const storageKey = "allBookedSeats";
-
-    // Загружаем все бронирования
-    let allBookings = JSON.parse(localStorage.getItem(storageKey)) || {};
-
-    // Если у фильма нет данных, создаем пустую структуру
-    if (!allBookings[currentMovie]) {
-        allBookings[currentMovie] = {};
-    }
-    if (!allBookings[currentMovie][currentHall]) {
-        allBookings[currentMovie][currentHall] = [];
-    }
-
-    let bookedSeats = new Set(allBookings[currentMovie][currentHall]); // Загруженные забронированные места
-    let selectedSeats = new Set();
+    let bookedSeats = new Set(); // Забронированные места (только на время сессии)
+    let selectedSeats = new Set(); // Выбранные места перед бронированием
 
     // Кнопка "Забронировать"
     const bookButton = document.createElement("button");
@@ -115,16 +98,11 @@ document.addEventListener("DOMContentLoaded", function () {
             if (seat) {
                 seat.classList.add("booked");
                 seat.classList.remove("selected");
-                bookedSeats.add(seatNumber); // Сохраняем бронирование
+                bookedSeats.add(seatNumber); // Добавляем место в забронированные
             }
         });
 
         selectedSeats.clear(); // Очищаем выбранные места после бронирования
-
-        // Обновляем объект с бронированиями
-        allBookings[currentMovie][currentHall] = [...bookedSeats];
-        localStorage.setItem(storageKey, JSON.stringify(allBookings));
-
         updateUI();
     });
 
