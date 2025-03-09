@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cvinema - Фильм</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cvinema - Бронирование мест</title>
+    <meta name="description" content="Покупка билетов на киносеансы">
 </head>
 <body>
     <header>
-        <span class="back-arrow" onclick="goToMain()">←</span>
-        <h1 onclick="goToMain()">Cvinema</h1>
+        <div class="logo"> <a href="/Cvinema">
+            <img src="images\logo_cvinema.png" alt="Cvinema" draggable="false" width="350"> </a>
+        </div>
+        <div class="info">
+            <p class="location">📍 Казахстан, Костанай</p>
+            <p class="phone">📞 +7 (777) 359-58-58
+            </p>
+        </div>
+        <div class="socials">
+            <a href="https://www.instagram.com/" target="_blank" class="social-btn instagram">Instagram</a>
+            <a href="https://www.facebook.com/" target="_blank" class="social-btn facebook">Facebook</a>
+        </div>
     </header>
-    
+
     <main>
-        <div id="movie-info">
-            <h2 id="movie-title"></h2>
-            <p id="movie-description"></p>
-            <img id="movie-image" src="" alt="Постер фильма">
-            <p>Оценка: <span id="movie-rating"></span></p>
-        </div>
-        
-        <div id="booking">
-            <h3>Бронирование мест</h3>
-            <p>Зал: <span id="movie-hall"></span></p>
-            <div id="seats-container"></div>
-            <button onclick="confirmBooking()">Забронировать</button>
-        </div>
+        <h1>Выберите место</h1>
+        <div class="screen">Экран</div>
+        <div id="seats-container"></div>
     </main>
 
-    <script src="script.js"></script>
 </body>
 </html>

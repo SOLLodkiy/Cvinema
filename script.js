@@ -1,142 +1,158 @@
-document.addEventListener("DOMContentLoaded", () => {
-    router(); // Загружаем контент в зависимости от URL
-    window.addEventListener("popstate", router); // Отслеживаем назад/вперед
-});
+document.addEventListener("DOMContentLoaded", function () {
+    const seatsContainer = document.getElementById('seats-container');
+    const hallSelect = document.getElementById("hall-select");
+    const totalSeats = 52;
+    const seatsPerRow = 14;
+    const seatPrice = 1200;
 
-function router() {
-    const path = window.location.pathname.split("/").pop();
-    
-    if (!path || path === "Cvinema") {
-        loadMovies(); // Главная страница
-    } else {
-        loadMovieDetails(path); // Страница фильма
+    // Объект для хранения информации о каждом зале (забронированные места)
+    const hallsData = {
+        1: new Set(),
+        2: new Set(),
+        3: new Set(),
+        4: new Set(),
+        5: new Set(),
+        6: new Set()
+    };
+
+    // Объект для хранения выбранных мест в каждом зале
+    const selectedSeatsData = {
+        1: new Set(),
+        2: new Set(),
+        3: new Set(),
+        4: new Set(),
+        5: new Set(),
+        6: new Set()
+    };
+
+    let currentHall = hallSelect.value;
+
+    // Кнопка "Забронировать"
+    const bookButton = document.createElement("button");
+    bookButton.textContent = "Забронировать";
+    bookButton.classList.add("book-button");
+    bookButton.style.display = "none";
+    document.body.appendChild(bookButton);
+
+    // Блок для отображения суммы
+    const totalPrice = document.createElement("p");
+    totalPrice.classList.add("total-price");
+    totalPrice.textContent = "Общая сумма: 0 тг";
+    totalPrice.style.display = "none";
+    document.body.appendChild(totalPrice);
+
+    // Всплывающая цена
+    const priceTooltip = document.createElement("div");
+    priceTooltip.classList.add("price-tooltip");
+    priceTooltip.textContent = "1200 тг";
+    document.body.appendChild(priceTooltip);
+
+    function updateUI() {
+        const hasSelectedSeats = selectedSeatsData[currentHall].size > 0;
+        bookButton.style.display = hasSelectedSeats ? "block" : "none";
+        totalPrice.style.display = hasSelectedSeats ? "block" : "none";
+
+        if (hasSelectedSeats) {
+            totalPrice.textContent = `Общая сумма: ${selectedSeatsData[currentHall].size * seatPrice} тг`;
+        }
     }
-}
 
-// Загружаем список фильмов
-function loadMovies() {
-    document.body.innerHTML = `
-        <header>
-            <h1 onclick="goToMain()">Cvinema</h1>
-        </header>
-        <main>
-            <h2>Афиша</h2>
-            <div id="movies-container"></div>
-        </main>
-    `;
+    function updateTooltipPosition(event) {
+        priceTooltip.style.left = event.pageX + 10 + "px";
+        priceTooltip.style.top = event.pageY + 10 + "px";
+    }
 
-    fetch("movies.json")
-        .then(response => response.json())
-        .then(movies => {
-            const container = document.getElementById("movies-container");
-            container.innerHTML = "";
+    function renderSeats() {
+        seatsContainer.innerHTML = "";
+        let fullRows = Math.floor(totalSeats / seatsPerRow);
+        let remainingSeats = totalSeats % seatsPerRow;
 
-            movies.forEach(movie => {
-                const movieDiv = document.createElement("div");
-                movieDiv.classList.add("movie-card");
-                movieDiv.innerHTML = `
-                    <img src="${movie.poster}" alt="${movie.title}">
-                    <h3>${movie.title}</h3>
-                `;
-                movieDiv.onclick = () => changeURL(movie.id);
-                container.appendChild(movieDiv);
-            });
-        });
-}
+        for (let i = 0; i < fullRows; i++) {
+            let row = document.createElement('div');
+            row.classList.add('seat-row');
 
-// Загружаем детали фильма
-function loadMovieDetails(movieId) {
-    fetch("movies.json")
-        .then(response => response.json())
-        .then(movies => {
-            const movie = movies.find(m => m.id === movieId);
-            if (!movie) {
-                goToMain();
-                return;
+            for (let j = 0; j < seatsPerRow; j++) {
+                let seat = createSeat(i * seatsPerRow + j + 1);
+                row.appendChild(seat);
             }
 
-            // Меняем title страницы
-            document.title = `Cvinema - ${movie.title}`;
+            seatsContainer.appendChild(row);
+        }
 
-            // Создаём разметку фильма
-            document.body.innerHTML = `
-                <header>
-                    <span class="back-arrow" onclick="goToMain()">←</span>
-                    <h1 onclick="goToMain()">Cvinema</h1>
-                </header>
+        if (remainingSeats > 0) {
+            let lastRow = document.createElement('div');
+            lastRow.classList.add('seat-row');
+            lastRow.style.justifyContent = "center";
 
-                <main>
-                    <div id="movie-info">
-                        <h2>${movie.title}</h2>
-                        <p>${movie.description}</p>
-                        <img id="movie-image" src="${movie.poster}" alt="Постер фильма">
-                        <p>Оценка: ${movie.rating}</p>
-                    </div>
-
-                    <div id="booking">
-                        <h3>Бронирование мест</h3>
-                        <p>Зал: <span id="movie-hall"></span></p>
-                        <div id="seats-container"></div>
-                        <button onclick="confirmBooking('${movie.id}')">Забронировать</button>
-                    </div>
-                </main>
-            `;
-
-            let hall = localStorage.getItem(`hall-${movie.id}`);
-            if (!hall) {
-                hall = `Зал ${Math.floor(Math.random() * 5) + 1}`;
-                localStorage.setItem(`hall-${movie.id}`, hall);
+            for (let k = 0; k < remainingSeats; k++) {
+                let seat = createSeat(fullRows * seatsPerRow + k + 1);
+                lastRow.appendChild(seat);
             }
-            document.getElementById("movie-hall").textContent = hall;
 
-            loadSeats(movie.id);
-        });
-}
+            seatsContainer.appendChild(lastRow);
+        }
 
-// Меняет URL и загружает новый контент
-function changeURL(movieId) {
-    history.pushState(null, "", `/Cvinema/${movieId}`);
-    router();
-}
+        updateUI(); // Обновляем UI после рендера
+    }
 
-// Возвращает на главную страницу
-function goToMain() {
-    history.pushState(null, "", "/Cvinema");
-    router();
-}
+    function createSeat(number) {
+        let seat = document.createElement('div');
+        seat.classList.add('seat');
+        seat.textContent = number;
 
-// Загружаем и создаём сиденья
-function loadSeats(movieId) {
-    const seatsContainer = document.getElementById("seats-container");
-    seatsContainer.innerHTML = "";
-    let seats = JSON.parse(localStorage.getItem(`seats-${movieId}`)) || Array(30).fill(false);
+        if (hallsData[currentHall].has(number)) {
+            seat.classList.add("booked"); // Красный цвет (забронировано)
+        } else if (selectedSeatsData[currentHall].has(number)) {
+            seat.classList.add("selected"); // Жёлтый цвет (выбрано)
+        }
 
-    seats.forEach((isBooked, index) => {
-        const seat = document.createElement("div");
-        seat.classList.add("seat");
-        seat.textContent = index + 1;
-        if (isBooked) seat.classList.add("booked");
-        
-        seat.onclick = () => {
+        seat.addEventListener("mouseenter", function () {
             if (!seat.classList.contains("booked")) {
-                seat.classList.toggle("selected");
+                priceTooltip.style.display = "block";
             }
-        };
+        });
 
-        seatsContainer.appendChild(seat);
+        seat.addEventListener("mouseleave", function () {
+            priceTooltip.style.display = "none";
+        });
+
+        seat.addEventListener("mousemove", updateTooltipPosition);
+
+        seat.addEventListener("click", function () {
+            if (seat.classList.contains("booked")) return;
+
+            if (seat.classList.contains("selected")) {
+                seat.classList.remove("selected");
+                selectedSeatsData[currentHall].delete(number);
+            } else {
+                seat.classList.add("selected");
+                selectedSeatsData[currentHall].add(number);
+            }
+
+            updateUI();
+        });
+
+        return seat;
+    }
+
+    bookButton.addEventListener("click", function () {
+        selectedSeatsData[currentHall].forEach((seatNumber) => {
+            let seat = [...document.querySelectorAll('.seat')].find(s => s.textContent == seatNumber);
+            if (seat) {
+                seat.classList.add("booked");
+                seat.classList.remove("selected");
+                hallsData[currentHall].add(seatNumber); // Сохраняем данные о бронировании
+            }
+        });
+
+        selectedSeatsData[currentHall].clear(); // Очищаем выбранные места после бронирования
+        updateUI();
     });
-}
 
-// Подтверждение бронирования
-function confirmBooking(movieId) {
-    let seats = JSON.parse(localStorage.getItem(`seats-${movieId}`)) || Array(30).fill(false);
-    
-    document.querySelectorAll(".seat.selected").forEach(seat => {
-        const index = parseInt(seat.textContent) - 1;
-        seats[index] = true;
+    hallSelect.addEventListener("change", function () {
+        currentHall = hallSelect.value;
+        renderSeats(); // Перерисовываем места для нового зала
     });
 
-    localStorage.setItem(`seats-${movieId}`, JSON.stringify(seats));
-    alert("Места забронированы!");
-    loadSeats(movieId);
-}
+    renderSeats(); // Начальный рендеринг
+});
