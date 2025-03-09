@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
             description: "Продолжение истории на Пандоре.",
             rating: 8.2
         },
-        "человек-паук-через-вселенные": {
+        "человекпаук-через-вселенные": {
             title: "Человек-паук: Через вселенные",
             poster: "https://ru-images.kinorium.com/movie/300/1446885.jpg?1654075889",
             description: "Майлз Моралес отправляется в мультивселенную.",
