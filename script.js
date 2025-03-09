@@ -1,12 +1,30 @@
 document.addEventListener("DOMContentLoaded", () => {
-    if (window.location.pathname === "/Cvinema/") {
-        loadMovies();
-    } else {
-        loadMovieDetails();
-    }
+    router(); // Загружаем контент в зависимости от URL
+    window.addEventListener("popstate", router); // Отслеживаем назад/вперед
 });
 
+function router() {
+    const path = window.location.pathname.split("/").pop();
+    
+    if (!path || path === "Cvinema") {
+        loadMovies(); // Главная страница
+    } else {
+        loadMovieDetails(path); // Страница фильма
+    }
+}
+
+// Загружаем список фильмов
 function loadMovies() {
+    document.body.innerHTML = `
+        <header>
+            <h1 onclick="goToMain()">Cvinema</h1>
+        </header>
+        <main>
+            <h2>Афиша</h2>
+            <div id="movies-container"></div>
+        </main>
+    `;
+
     fetch("movies.json")
         .then(response => response.json())
         .then(movies => {
@@ -20,31 +38,50 @@ function loadMovies() {
                     <img src="${movie.poster}" alt="${movie.title}">
                     <h3>${movie.title}</h3>
                 `;
-                movieDiv.onclick = () => {
-                    window.location.href = `/Cvinema/${movie.id}`;
-                };
+                movieDiv.onclick = () => changeURL(movie.id);
                 container.appendChild(movieDiv);
             });
         });
 }
 
-function loadMovieDetails() {
-    const movieId = window.location.pathname.split("/").pop();
-    
+// Загружаем детали фильма
+function loadMovieDetails(movieId) {
     fetch("movies.json")
         .then(response => response.json())
         .then(movies => {
             const movie = movies.find(m => m.id === movieId);
             if (!movie) {
-                window.location.href = "/Cvinema/";
+                goToMain();
                 return;
             }
 
-            document.getElementById("movie-title").textContent = movie.title;
-            document.getElementById("movie-description").textContent = movie.description;
-            document.getElementById("movie-image").src = movie.poster;
-            document.getElementById("movie-rating").textContent = movie.rating;
-            
+            // Меняем title страницы
+            document.title = `Cvinema - ${movie.title}`;
+
+            // Создаём разметку фильма
+            document.body.innerHTML = `
+                <header>
+                    <span class="back-arrow" onclick="goToMain()">←</span>
+                    <h1 onclick="goToMain()">Cvinema</h1>
+                </header>
+
+                <main>
+                    <div id="movie-info">
+                        <h2>${movie.title}</h2>
+                        <p>${movie.description}</p>
+                        <img id="movie-image" src="${movie.poster}" alt="Постер фильма">
+                        <p>Оценка: ${movie.rating}</p>
+                    </div>
+
+                    <div id="booking">
+                        <h3>Бронирование мест</h3>
+                        <p>Зал: <span id="movie-hall"></span></p>
+                        <div id="seats-container"></div>
+                        <button onclick="confirmBooking('${movie.id}')">Забронировать</button>
+                    </div>
+                </main>
+            `;
+
             let hall = localStorage.getItem(`hall-${movie.id}`);
             if (!hall) {
                 hall = `Зал ${Math.floor(Math.random() * 5) + 1}`;
@@ -56,6 +93,19 @@ function loadMovieDetails() {
         });
 }
 
+// Меняет URL и загружает новый контент
+function changeURL(movieId) {
+    history.pushState(null, "", `/Cvinema/${movieId}`);
+    router();
+}
+
+// Возвращает на главную страницу
+function goToMain() {
+    history.pushState(null, "", "/Cvinema");
+    router();
+}
+
+// Загружаем и создаём сиденья
 function loadSeats(movieId) {
     const seatsContainer = document.getElementById("seats-container");
     seatsContainer.innerHTML = "";
@@ -75,12 +125,10 @@ function loadSeats(movieId) {
 
         seatsContainer.appendChild(seat);
     });
-
-    localStorage.setItem(`seats-${movieId}`, JSON.stringify(seats));
 }
 
-function confirmBooking() {
-    const movieId = window.location.pathname.split("/").pop();
+// Подтверждение бронирования
+function confirmBooking(movieId) {
     let seats = JSON.parse(localStorage.getItem(`seats-${movieId}`)) || Array(30).fill(false);
     
     document.querySelectorAll(".seat.selected").forEach(seat => {
@@ -90,9 +138,5 @@ function confirmBooking() {
 
     localStorage.setItem(`seats-${movieId}`, JSON.stringify(seats));
     alert("Места забронированы!");
-    location.reload();
-}
-
-function goToMain() {
-    window.location.href = "/Cvinema/";
+    loadSeats(movieId);
 }
