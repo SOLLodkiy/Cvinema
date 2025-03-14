@@ -453,6 +453,18 @@ select {
         height: 10px;
         margin: 3px;
     }
+    #ticket {
+        width: 100px;
+    }
+    #login {
+        width: 50px;
+    }
+    #us {
+        width: 70px;
+    }
+    .header-buttons {
+        gap: 10px;
+    }
 }
 @media (max-width: 480px) {
     .slide img {
