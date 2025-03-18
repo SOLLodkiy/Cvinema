@@ -8,9 +8,15 @@ body {
 }
 
 header {
-    background-color: pink;
-    padding: 20px;
-    border-radius: 0 0 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffccd5;
+    padding: 15px 20px;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    flex-wrap: wrap;
 }
 
 .container {
