@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .replace(/\s/g, "-"); // Убираем пробелы и приводим к нижнему регистру
 
     console.log("Название фильма из URL:", movieName);
+    localStorage.setItem("selectedMovie", movieName);
 
     // Данные о фильмах
     const moviesData = {
