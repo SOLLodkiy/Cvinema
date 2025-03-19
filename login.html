@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cvinema - Вход и Регистрация</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
+    <script src="login.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo"> 
+            <a href="/Cvinema">
+                <img src="images/logo_cvinema.png" alt="Cvinema" draggable="false" width="350">
+            </a>
+        </div>
+        <div class="header-buttons">
+            <div class="button-wrapper">
+                <div class="button-trigger"></div>
+                <img src="images/tickett.png" alt="Билеты" id="ticket" class="header-button" draggable="false" width="60">
+                <p id="ticket_text" class="button-text">Билеты</p>
+            </div>
+            <a href="info.html" class="button-wrapper">
+                <div class="button-trigger"></div>
+                <img src="images/us.png" alt="О нас" id="us" class="header-button" draggable="false" width="60">
+                <p id="us_text" class="button-text">О нас</p>
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-box">
+            <h2 id="form-title">Регистрация</h2>
+
+            <label for="email">Введите почту:</label>
+            <input type="email" id="email" placeholder="Example@gmail.com" required>
+            <div class="error" id="email-error"></div>
+
+            <div id="phone-group">
+                <label for="phone">Введите номер телефона:</label>
+                <input type="tel" id="phone" placeholder="+7 777 123 45 67" required>
+                <div class="error" id="phone-error"></div>
+            </div>
+
+            <label for="password">Введите пароль:</label>
+            <div class="password-container">
+                <input type="password" id="password" placeholder="Введите не менее 6 символов" required>
+                <button type="button" id="toggle-password" onclick="togglePassword()">Показать пароль</button>
+            </div>
+            <div class="error" id="password-error"></div>
+
+            <button id="main-btn" onclick="submitForm()">Зарегистрироваться</button>
+            <button id="toggle-btn" onclick="toggleForm()">Уже есть аккаунт?</button>
+        </div>
+    </div>
+</body>
+</html>
