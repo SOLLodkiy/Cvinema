@@ -21,13 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
     totalPrice.style.display = "none";
     document.body.appendChild(totalPrice);
 
-    // Кнопка "Мои билеты"
-    const ticketButton = document.getElementById("ticket");
-    const modal = document.getElementById("ticket-modal");
-    const closeBtn = document.querySelector(".close-btn");
-    const ticketList = document.getElementById("ticket-list");
-    const noTicketsText = document.getElementById("no-tickets");
-
     function updateUI() {
         const hasSelectedSeats = selectedSeats.size > 0;
         bookButton.style.display = hasSelectedSeats ? "block" : "none";
@@ -99,17 +92,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return seat;
     }
 
-    // Функция сохранения билета
-    function saveTicket(movie, seat, hall) {
-        let tickets = JSON.parse(localStorage.getItem("user_tickets")) || [];
-        let serial = "CIN-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-        let expiration = new Date();
-        expiration.setDate(expiration.getDate() + 1); // Билет действует 1 день
-
-        tickets.push({ movie, seat, hall, serial, expiration: expiration.toLocaleString() });
-        localStorage.setItem("user_tickets", JSON.stringify(tickets));
-    }
-
     bookButton.addEventListener("click", function () {
         selectedSeats.forEach((seatNumber) => {
             let seat = [...document.querySelectorAll('.seat')].find(s => s.textContent == seatNumber);
@@ -117,11 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 seat.classList.add("booked");
                 seat.classList.remove("selected");
                 bookedSeats.add(seatNumber); // Добавляем место в забронированные
-
-                // Сохранение билета
-                let movieTitle = document.getElementById("movie-title").textContent;
-                let hallNumber = localStorage.getItem("selected_hall") || "1";
-                saveTicket(movieTitle, seatNumber, hallNumber);
             }
         });
 
@@ -129,45 +106,83 @@ document.addEventListener("DOMContentLoaded", function () {
         updateUI();
     });
 
-    // Функция загрузки билетов в модальное окно
-    function loadTickets() {
-        ticketList.innerHTML = "";
-        let tickets = JSON.parse(localStorage.getItem("user_tickets")) || [];
-
-        if (tickets.length === 0) {
-            ticketList.appendChild(noTicketsText);
-        } else {
-            tickets.forEach(ticket => {
-                let ticketDiv = document.createElement("div");
-                ticketDiv.classList.add("ticket");
-                ticketDiv.innerHTML = `
-                    <p><strong>Фильм:</strong> ${ticket.movie}</p>
-                    <p><strong>Место:</strong> ${ticket.seat}</p>
-                    <p><strong>Зал:</strong> ${ticket.hall}</p>
-                    <p><strong>Серийный номер:</strong> ${ticket.serial}</p>
-                    <p><strong>Действителен до:</strong> ${ticket.expiration}</p>
-                `;
-                ticketList.appendChild(ticketDiv);
-            });
-        }
-    }
-
-    // Обработчик кнопки "Мои билеты"
-    ticketButton.addEventListener("click", () => {
-        loadTickets();
-        modal.style.display = "flex";
-    });
-
-    // Закрытие модального окна
-    closeBtn.addEventListener("click", () => {
-        modal.style.display = "none";
-    });
-
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-            modal.style.display = "none";
-        }
-    });
-
     renderSeats();
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const ticketButton = document.getElementById("ticket");
+    const ticketPopup = document.getElementById("ticket-popup");
+    const ticketList = document.getElementById("ticket-list");
+    const closeButton = document.querySelector(".close-btn");
+
+    ticketButton.addEventListener("click", function () {
+        updateTicketsUI();
+        ticketPopup.style.display = "flex";
+    });
+
+    closeButton.addEventListener("click", function () {
+        ticketPopup.style.display = "none";
+    });
+
+    window.addEventListener("click", function (event) {
+        if (event.target === ticketPopup) {
+            ticketPopup.style.display = "none";
+        }
+    });
+
+    function updateTicketsUI() {
+        const tickets = JSON.parse(localStorage.getItem("userTickets")) || [];
+        ticketList.innerHTML = "";
+
+        if (tickets.length === 0) {
+            ticketList.textContent = "На вашем аккаунте нет активных билетов.";
+            return;
+        }
+
+        tickets.forEach(ticket => {
+            const ticketDiv = document.createElement("div");
+            ticketDiv.classList.add("ticket");
+
+            ticketDiv.innerHTML = `
+                <p><strong>Фильм:</strong> ${ticket.movie}</p>
+                <p><strong>Зал:</strong> ${ticket.hall}</p>
+                <p><strong>Место:</strong> ${ticket.seat}</p>
+                <p><strong>Серийный номер:</strong> <span class="ticket-number">${ticket.serial}</span></p>
+                <p><strong>Истекает:</strong> ${ticket.expiry}</p>
+            `;
+
+            ticketList.appendChild(ticketDiv);
+        });
+    }
+
+    function generateSerialNumber() {
+        return Math.floor(100000 + Math.random() * 900000);
+    }
+
+    function addTicket(movie, seat, hall) {
+        let tickets = JSON.parse(localStorage.getItem("userTickets")) || [];
+        let expiryDate = new Date();
+        expiryDate.setHours(expiryDate.getHours() + 2);
+
+        tickets.push({
+            movie: movie,
+            seat: seat,
+            hall: hall,
+            serial: generateSerialNumber(),
+            expiry: expiryDate.toLocaleString()
+        });
+
+        localStorage.setItem("userTickets", JSON.stringify(tickets));
+    }
+
+    // Вызов функции при бронировании
+    document.querySelector(".book-button").addEventListener("click", function () {
+        const movieName = new URLSearchParams(window.location.search).get("name");
+        const hall = localStorage.getItem(`hall_${movieName}`) || "Неизвестен";
+        
+        selectedSeats.forEach(seat => addTicket(movieName, seat, hall));
+
+        updateTicketsUI();
+    });
+});
+
