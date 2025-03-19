@@ -18,17 +18,11 @@ header {
     align-items: center;
     justify-content: space-between;
     background-color: #ffccd5;
-    padding: 15px 20px;
+    padding: 0px 20px;
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
     flex-wrap: wrap;
-}
-
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
 }
 
 .header-buttons {
@@ -79,32 +73,32 @@ header {
 }
 
 #ticket {
-    width: 120px;
+    width: 110px;
 }
 #login {
     position: relative;
-    width: 70px;
+    width: 60px;
     top: -5px;
 }
 #us {
     position: relative;
-    width: 90px;
+    width: 80px;
     top: -2px;
 }
 
 #ticket_text {
     position: absolute;
-    top: 66px;
-    right: 23px;
+    top: 60px;
+    right: 18px;
 }
 #login_text {
     position: absolute;
-    top: 52px;
+    top: 43px;
 }
 #us_text {
     position: absolute;
-    top: 52px;
-    left: 18px;
+    top: 45px;
+    left: 14px;
 }
 
 select {
